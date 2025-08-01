@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - Delhi High Court Case Scraper</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: 
+                linear-gradient(135deg, 
+                    rgba(255, 153, 51, 0.15) 0%, 
+                    rgba(255, 255, 255, 0.7) 25%, 
+                    rgba(255, 255, 255, 0.8) 50%, 
+                    rgba(255, 255, 255, 0.7) 75%, 
+                    rgba(19, 136, 8, 0.15) 100%
+                ),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><defs><pattern id="courthouse" patternUnits="userSpaceOnUse" width="400" height="400"><rect width="400" height="400" fill="%23f8f9fa"/><rect x="50" y="150" width="300" height="200" fill="%23e9ecef" opacity="0.3"/><rect x="80" y="180" width="40" height="120" fill="%23FF9933" opacity="0.1"/><rect x="140" y="180" width="40" height="120" fill="%23138808" opacity="0.1"/><rect x="200" y="180" width="40" height="120" fill="%23FF9933" opacity="0.1"/><rect x="260" y="180" width="40" height="120" fill="%23138808" opacity="0.1"/><rect x="320" y="180" width="40" height="120" fill="%23FF9933" opacity="0.1"/><polygon points="50,150 200,100 350,150" fill="%23dee2e6" opacity="0.2"/><rect x="175" y="130" width="50" height="20" fill="%23138808" opacity="0.15"/></pattern></defs><rect width="100%" height="100%" fill="url(%23courthouse)"/></svg>'),
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 153, 51, 0.02) 2px,
+                    rgba(255, 153, 51, 0.02) 4px
+                );
+            min-height: 100vh;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255, 153, 51, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(19, 136, 8, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255, 153, 51, 0.06) 0%, transparent 50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .main-container {
+            background: 
+                linear-gradient(135deg, 
+                    rgba(255, 255, 255, 0.95) 0%, 
+                    rgba(255, 255, 255, 0.98) 50%, 
+                    rgba(255, 255, 255, 0.95) 100%
+                );
+            border-radius: 24px;
+            box-shadow: 
+                0 32px 64px rgba(0, 0, 0, 0.12),
+                0 8px 24px rgba(255, 153, 51, 0.08),
+                0 1px 4px rgba(0, 0, 0, 0.04);
+            backdrop-filter: blur(20px);
+            margin: 30px auto;
+            max-width: 1400px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: 
+                linear-gradient(135deg, 
+                    #FF9933 0%, 
+                    #ffb366 25%, 
+                    #ffffff 50%, 
+                    #90c690 75%, 
+                    #138808 100%
+                );
+            color: #1a1a1a;
+            padding: 40px 50px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="80" fill="none" stroke="%23ffffff" stroke-width="2" opacity="0.1"/><circle cx="100" cy="100" r="60" fill="none" stroke="%23ffffff" stroke-width="1" opacity="0.1"/><circle cx="100" cy="100" r="40" fill="none" stroke="%23ffffff" stroke-width="1" opacity="0.1"/></svg>') center/120px no-repeat;
+            z-index: 1;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.8rem;
+            font-weight: 700;
+            position: relative;
+            z-index: 3;
+            background: linear-gradient(45deg, #d35400, #FF9933, #138808, #27ae60);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 8s ease-in-out infinite;
+            text-shadow: none;
+            letter-spacing: -1px;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .search-info {
+            background: 
+                linear-gradient(135deg, 
+                    rgba(255, 255, 255, 0.98) 0%, 
+                    rgba(255, 248, 240, 0.95) 100%
+                );
+            border-radius: 20px;
+            padding: 30px 40px;
+            margin: 30px 50px 20px 50px;
+            box-shadow: 
+                0 12px 32px rgba(255, 153, 51, 0.1),
+                0 4px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(255, 153, 51, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .search-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #FF9933, #FFFFFF, #138808);
+        }
+        
+        .back-btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+            margin-bottom: 20px;
+        }
+        
+        .back-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+        
+        .back-btn i {
+            margin-right: 8px;
+        }
+        
+        .search-query {
+            display: inline-block;
+            background: linear-gradient(135deg, #FF9933 0%, #138808 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: 15px;
+            box-shadow: 0 2px 8px rgba(255, 153, 51, 0.2);
+        }
+        
+        .results-section {
+            background: 
+                linear-gradient(135deg, 
+                    rgba(255, 255, 255, 0.98) 0%, 
+                    rgba(240, 255, 240, 0.95) 100%
+                );
+            border-radius: 20px;
+            padding: 40px;
+            margin: 20px 50px 30px 50px;
+            box-shadow: 
+                0 24px 48px rgba(19, 136, 8, 0.1),
+                0 8px 16px rgba(0, 0, 0, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(19, 136, 8, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .results-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #138808, #27ae60, #FFFFFF, #FF9933, #e67e22);
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .results-title {
+            color: #27ae60;
+            font-weight: 700;
+            font-size: 2.2rem;
+            position: relative;
+            margin: 0;
+        }
+        
+        .results-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #138808, #FF9933);
+            border-radius: 2px;
+        }
+        
+        .stats-card {
+            background: 
+                linear-gradient(135deg, 
+                    rgba(255, 255, 255, 0.98) 0%, 
+                    rgba(255, 248, 240, 0.95) 100%
+                );
+            border-radius: 18px;
+            padding: 25px 30px;
+            box-shadow: 
+                0 12px 32px rgba(255, 153, 51, 0.12),
+                0 4px 8px rgba(0, 0, 0, 0.04);
+            text-align: center;
+            border: 1px solid rgba(255, 153, 51, 0.15);
+            position: relative;
+            overflow: hidden;
+            min-width: 150px;
+        }
+        
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #FF9933, #138808);
+        }
+
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #d35400, #FF9933, #138808, #27ae60);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease-in-out infinite;
+            line-height: 1;
+        }
+
+        .stats-label {
+            color: #2c3e50;
+            font-size: 1rem;
+            margin-top: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .case-card {
+            border: 1px solid rgba(255, 153, 51, 0.15);
+            border-radius: 18px;
+            padding: 35px;
+            margin-bottom: 30px;
+            background: 
+                linear-gradient(135deg, 
+                    rgba(255, 255, 255, 0.98) 0%, 
+                    rgba(255, 248, 240, 0.95) 100%
+                );
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 
+                0 8px 24px rgba(255, 153, 51, 0.08),
+                0 2px 8px rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .case-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #FF9933, #138808);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .case-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .case-card:hover {
+            box-shadow: 
+                0 20px 40px rgba(255, 153, 51, 0.15),
+                0 8px 16px rgba(0, 0, 0, 0.08);
+            transform: translateY(-6px) scale(1.01);
+            border-color: #FF9933;
+        }
+        
+        .case-header {
+            background: linear-gradient(135deg, #FF9933 0%, #e67e22 25%, #27ae60 75%, #138808 100%);
+            color: white;
+            padding: 24px 30px;
+            border-radius: 14px;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .case-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .case-detail {
+            display: flex;
+            margin-bottom: 18px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 153, 51, 0.08);
+            transition: all 0.2s ease;
+        }
+        
+        .case-detail:hover {
+            background: rgba(255, 153, 51, 0.02);
+            margin: 0 -10px 18px -10px;
+            padding: 14px 10px;
+            border-radius: 8px;
+        }
+        
+        .case-detail:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 700;
+            color: #2c3e50;
+            min-width: 200px;
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+        }
+        
+        .detail-label i {
+            margin-right: 12px;
+            color: #FF9933;
+            width: 24px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .detail-value {
+            color: #34495e;
+            flex: 1;
+            font-weight: 500;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        
+        .pdf-link {
+            background: linear-gradient(135deg, #138808 0%, #27ae60 50%, #2ecc71 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            box-shadow: 
+                0 4px 12px rgba(19, 136, 8, 0.2),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .pdf-link:hover {
+            color: white;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 
+                0 8px 20px rgba(19, 136, 8, 0.3),
+                0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .pdf-link i {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        
+        .search-duration {
+            color: #7f8c8d;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .search-info,
+            .results-section {
+                margin: 20px;
+                padding: 25px;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .case-detail {
+                flex-direction: column;
+            }
+            
+            .detail-label {
+                min-width: auto;
+                margin-bottom: 8px;
+            }
+            
+            .results-header {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+            
+            .stats-card {
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container">
+            <!-- Header -->
+            <div class="header">
+                <h1><i class="fas fa-gavel"></i> Search Results</h1>
+            </div>
+
+            <!-- Search Info -->
+            <div class="search-info">
+                <a href="{{ url_for('index') }}" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Search
+                </a>
+                
+                <div class="d-flex align-items-center flex-wrap">
+                    <span class="me-3"><strong>Search Query:</strong></span>
+                    {% if search_query %}
+                        <span class="search-query">
+                            {{ search_query.case_type }}-{{ search_query.case_number }}/{{ search_query.year }}
+                        </span>
+                    {% endif %}
+                    
+                    {% if search_duration %}
+                        <span class="text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            Completed in {{ "%.2f"|format(search_duration) }} seconds
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div style="padding: 0 50px;">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
+                                <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' if category == 'success' else 'info-circle' }}"></i>
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Search Results -->
+            {% if search_result and search_result.data and search_result.data.cases %}
+                <div class="results-section">
+                    <div class="results-header">
+                        <h2 class="results-title">
+                            <i class="fas fa-list-alt"></i> Case Details
+                        </h2>
+                        <div class="stats-card">
+                            <div class="stats-number">{{ search_result.data.cases|length }}</div>
+                            <div class="stats-label">Cases Found</div>
+                        </div>
+                    </div>
+
+                    {% for case in search_result.data.cases %}
+                        <div class="case-card">
+                            <div class="case-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-folder-open"></i>
+                                    Case {{ case.case_type }}-{{ case.case_number }}/{{ case.year }}
+                                </h5>
+                            </div>
+
+                            <div class="case-details">
+                                <div class="case-detail">
+                                    <div class="detail-label">
+                                        <i class="fas fa-tag"></i> Case Type
+                                    </div>
+                                    <div class="detail-value">{{ case.case_type }}</div>
+                                </div>
+
+                                <div class="case-detail">
+                                    <div class="detail-label">
+                                        <i class="fas fa-hashtag"></i> Case Number
+                                    </div>
+                                    <div class="detail-value">{{ case.case_number }}</div>
+                                </div>
+
+                                <div class="case-detail">
+                                    <div class="detail-label">
+                                        <i class="fas fa-calendar"></i> Year
+                                    </div>
+                                    <div class="detail-value">{{ case.year }}</div>
+                                </div>
+
+                                <div class="case-detail">
+                                    <div class="detail-label">
+                                        <i class="fas fa-user"></i> Petitioner
+                                    </div>
+                                    <div class="detail-value">{{ case.petitioner }}</div>
+                                </div>
+
+                                <div class="case-detail">
+                                    <div class="detail-label">
+                                        <i class="fas fa-building"></i> Respondent
+                                    </div>
+                                    <div class="detail-value">{{ case.respondent }}</div>
+                                </div>
+
+                                {% if case.next_date != 'NA' %}
+                                <div class="case-detail">
+                                    <div class="detail-label">
+                                        <i class="fas fa-calendar-plus"></i> Next Date
+                                    </div>
+                                    <div class="detail-value">{{ case.next_date }}</div>
+                                </div>
+                                {% endif %}
+
+                                {% if case.last_date != 'NA' %}
+                                <div class="case-detail">
+                                    <div class="detail-label">
+                                        <i class="fas fa-calendar-minus"></i> Last Date
+                                    </div>
+                                    <div class="detail-value">{{ case.last_date }}</div>
+                                </div>
+                                {% endif %}
+
+                                {% if case.date_of_judgment_order != 'NA' %}
+                                <div class="case-detail">
+                                    <div class="detail-label">
+                                        <i class="fas fa-gavel"></i> Judgment Date
+                                    </div>
+                                    <div class="detail-value">{{ case.date_of_judgment_order }}</div>
+                                </div>
+                                {% endif %}
+
+                                {% if case.pdf_link != 'NA' %}
+                                <div class="case-detail">
+                                    <div class="detail-label">
+                                        <i class="fas fa-file-pdf"></i> Document
+                                    </div>
+                                    <div class="detail-value">
+                                        <a href="/download_pdf?url={{ case.pdf_link|urlencode }}&case_id={{ case.case_type }}-{{ case.case_number }}-{{ case.year }}" 
+                                           class="pdf-link" target="_blank">
+                                            <i class="fas fa-download"></i> Download PDF
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="results-section">
+                    <div class="text-center">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h3 class="text-muted">No Results Found</h3>
+                        <p class="text-muted">No cases were found for your search criteria.</p>
+                        <a href="{{ url_for('index') }}" class="back-btn">
+                            <i class="fas fa-arrow-left"></i> Try Another Search
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+
+        // Add some interactivity
+        document.querySelectorAll('.case-card').forEach(function(card) {
+            card.addEventListener('click', function(e) {
+                if (!e.target.closest('a')) {
+                    card.style.transform = card.style.transform ? '' : 'scale(1.02)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
