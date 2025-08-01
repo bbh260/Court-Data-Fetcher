@@ -1,0 +1,44 @@
+# Git files
+.git
+.gitignore
+
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE files
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+app.log
+
+# Database files
+*.db
+
+# Development files
+.venv
+
+# Downloaded files (will be created in container)
+downloads/*.pdf
+
+# Windows batch files (not needed in Linux container)
+*.bat
+
+# Temporary files
+tmp/
+temp/
